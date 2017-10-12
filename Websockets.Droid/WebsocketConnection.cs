@@ -1,3 +1,4 @@
+using Javax.Net.Ssl;
 using System;
 using System.Collections.Generic;
 using Websockets.DroidBridge;
@@ -62,7 +63,9 @@ namespace Websockets.Droid
         {
             try
             {
-                _controller = new BridgeController();
+                var ssl = SSLContext.GetInstance("TLS");
+                ssl.Init(null, null, null);
+                _controller = new BridgeController(ssl);
                 _controller.Proxy = this;
                 _controller.Open(url, protocol, headers);
             }
