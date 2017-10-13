@@ -10,8 +10,6 @@ namespace Websockets.Droid
     /// </summary>
     public class WebsocketConnection : BridgeProxy, IWebSocketConnection
     {
-        private static SSLContext _SslCtx;
-
         public bool IsOpen { get; private set; }
 
         public event Action OnClosed = delegate { };
@@ -32,24 +30,10 @@ namespace Websockets.Droid
         /// <summary>
         /// Factory Initializer
         /// </summary>
-        /// 
-        [Obsolete("Please use the SSLContext enabled version instead", false)]
         public static void Link()
         {
             WebSocketFactory.Init(() => new WebsocketConnection());
         }
-
-
-        /// <summary>
-        /// Factory Initializer
-        /// </summary>
-        /// 
-        public static void Link(SSLContext sslContext)
-        {
-            _SslCtx = sslContext;
-            WebSocketFactory.Init(() => new WebsocketConnection());
-        }
-
 
         public void Close()
         {
@@ -79,7 +63,9 @@ namespace Websockets.Droid
         {
             try
             {
-                _controller = new BridgeController(_SslCtx);
+                var ssl = SSLContext.GetInstance("TLS");
+                ssl.Init(null, null, null);
+                _controller = new BridgeController(ssl);
                 _controller.Proxy = this;
                 _controller.Open(url, protocol, headers);
             }
